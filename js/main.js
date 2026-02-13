@@ -1,5 +1,6 @@
 import { Divination } from './core/divination.js';
 import { PALACE_ELEMENTS } from './data/constants.js';
+import { Solar, Lunar } from 'lunar-javascript';
 
 const castingBtn = document.getElementById('cast-btn');
 const resetBtn = document.getElementById('reset-btn');
@@ -11,8 +12,8 @@ const variedHexContainer = document.getElementById('varied-hexagram');
 const divination = new Divination();
 
 function initDate() {
-    if (typeof Lunar !== 'undefined') {
-        const d = Lunar.Solar.fromDate(new Date());
+    try {
+        const d = Solar.fromDate(new Date());
         const lunar = d.getLunar();
         const ganZhiYear = lunar.getYearInGanZhi();
         const ganZhiMonth = lunar.getMonthInGanZhi();
@@ -29,8 +30,10 @@ function initDate() {
         return {
             dayStem: lunar.getDayGan()
         };
-    } else {
-        dateInfo.innerHTML = "错误: Lunar 库未加载。";
+
+    } catch (e) {
+        console.error(e);
+        dateInfo.innerHTML = "错误: 日期库加载失败。";
         return { dayStem: "Jia" };
     }
 }
@@ -44,12 +47,10 @@ let currentDayStem = "Jia";
 
 document.addEventListener('DOMContentLoaded', () => {
     const dateData = initDate();
-    if (typeof Lunar !== 'undefined') {
-        const d = Lunar.Solar.fromDate(new Date());
-        const lunar = d.getLunar();
-        const dayGan = lunar.getDayGan();
-        currentDayStem = STEM_MAP[dayGan] || "Jia";
-    }
+    const d = Solar.fromDate(new Date());
+    const lunar = d.getLunar();
+    const dayGan = lunar.getDayGan();
+    currentDayStem = STEM_MAP[dayGan] || "Jia";
 });
 
 castingBtn.addEventListener('click', () => {
