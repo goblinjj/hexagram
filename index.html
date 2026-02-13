@@ -19,13 +19,18 @@
 
         <main>
             <div class="controls">
+                <div id="coin-container" class="coin-container" style="display:none;">
+                    <div class="coin"></div>
+                    <div class="coin"></div>
+                    <div class="coin"></div>
+                </div>
                 <button id="cast-btn">起卦</button>
                 <button id="reset-btn" style="display:none;">重置</button>
                 <div id="status-message">点击按钮开始起卦...</div>
             </div>
 
             <div class="divination-area">
-                <div id="primary-hexagram" class="hexagram-container">
+                <div id="primary-hexagram" class="hexagram-container" style="display:none;">
                     <h2>本卦</h2>
                     <div class="hexagram-lines"></div>
                     <div class="hexagram-info"></div>

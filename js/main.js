@@ -56,27 +56,240 @@ document.addEventListener('DOMContentLoaded', () => {
     window.startCasting();
 });
 
-castingBtn.addEventListener('click', () => {
-    statusMsg.innerText = "起卦中...";
-    const result = divination.cast();
+const castingButtonText = [
+    "开始起卦 (掷初爻)", "掷二爻", "掷三爻", "掷四爻", "掷五爻", "掷上爻"
+];
 
-    renderResult(result);
+let castingStep = 0;
+const coinContainer = document.getElementById('coin-container');
 
-    castingBtn.style.display = 'none';
-    resetBtn.style.display = 'inline-block';
-    statusMsg.innerText = "起卦完成";
-});
-
-resetBtn.addEventListener('click', () => {
+window.startCasting = () => {
+    castingStep = 0;
+    divination.reset();
+    primaryHexContainer.style.display = 'none';
     primaryHexContainer.querySelector('.hexagram-lines').innerHTML = '';
     primaryHexContainer.querySelector('.hexagram-info').innerHTML = '';
     variedHexContainer.style.display = 'none';
     variedHexContainer.querySelector('.hexagram-lines').innerHTML = '';
 
+    castingBtn.innerText = castingButtonText[0];
+    castingBtn.disabled = false;
     castingBtn.style.display = 'inline-block';
     resetBtn.style.display = 'none';
-    statusMsg.innerText = "点击按钮开始起卦...";
+    statusMsg.innerText = "点击按钮开始抛掷铜钱...";
+    coinContainer.style.display = 'none';
+};
+
+castingBtn.addEventListener('click', () => {
+    if (castingStep < 6) {
+        performToss();
+    }
 });
+
+resetBtn.addEventListener('click', () => {
+    window.startCasting();
+});
+
+function performToss() {
+    castingBtn.disabled = true;
+    statusMsg.innerText = "掷铜钱中...";
+    coinContainer.style.display = 'flex';
+
+    // 1. Determine targets (Collision limit)
+    // Area: 300x150. Coin: 50x50.
+    const targets = [];
+    let attempts = 0;
+    while (targets.length < 3 && attempts < 100) {
+        const left = Math.random() * 250; // 300 - 50
+        const top = Math.random() * 100;  // 150 - 50
+
+        let overlap = false;
+        for (const t of targets) {
+            const dx = t.left - left;
+            const dy = t.top - top;
+            // Distance check (55px to be safe)
+            if (Math.sqrt(dx * dx + dy * dy) < 60) {
+                overlap = true;
+                break;
+            }
+        }
+        if (!overlap) {
+            targets.push({ left, top });
+        }
+        attempts++;
+    }
+    // Fallback if placement fails
+    while (targets.length < 3) {
+        targets.push({ left: Math.random() * 250, top: Math.random() * 100 });
+    }
+
+    // 2. Prepare coins
+    const coins = coinContainer.querySelectorAll('.coin');
+    const indices = [0, 1, 2];
+    // Shuffle indices for stopping order
+    for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+
+    // 3. Start Motion
+    indices.forEach((coinIdx, i) => {
+        const c = coins[coinIdx];
+        const target = targets[coinIdx];
+
+        // Random start position (cluster near center for "toss" effect)
+        c.style.transition = 'none';
+        c.style.left = (125 + Math.random() * 50) + 'px';
+        c.style.top = (50 + Math.random() * 50) + 'px';
+        c.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+        // Trigger reflow
+        c.offsetHeight;
+
+        const stopDelay = 800 + (i * 600) + Math.random() * 300;
+
+        // Reset class to start spin
+        c.className = 'coin spinning';
+        c.innerText = '';
+
+        // spin speed
+        c.style.animationDuration = (0.5 + Math.random() * 0.3) + 's';
+
+        // Smooth Roll: Transition to target over the duration of the delay
+        c.style.transition = `left ${stopDelay}ms ease-out, top ${stopDelay}ms ease-out`;
+
+        // Set Target Position
+        c.style.left = target.left + 'px';
+        c.style.top = target.top + 'px';
+
+        // Store delay on the element for retrieval
+        c.dataset.stopDelay = stopDelay;
+    });
+
+    // 4. Logic & Feedback
+    const lineVal = divination.castLine();
+    const coinValues = decomposeToCoins(lineVal);
+    let completedCount = 0;
+
+    setVibration(3);
+
+    // Visual Flicker Interval (Texture swap only, NO movement - pure texture toggle)
+    const flickerInterval = setInterval(() => {
+        const spinningCoins = coinContainer.querySelectorAll('.coin.spinning');
+        if (spinningCoins.length === 0) {
+            clearInterval(flickerInterval);
+            return;
+        }
+        spinningCoins.forEach(c => {
+            const isYin = Math.random() > 0.5;
+            // Preserve spinning class, just toggle yin/yang class for color
+            c.classList.remove('yin', 'yang');
+            c.classList.add(isYin ? 'yin' : 'yang');
+            c.innerText = isYin ? "阴" : "阳";
+        });
+    }, 80);
+
+    // 5. Stopping Logic
+    indices.forEach((coinIdx, i) => {
+        const c = coins[coinIdx];
+        const delay = parseFloat(c.dataset.stopDelay);
+
+        setTimeout(() => {
+            const val = coinValues[coinIdx];
+
+            // Stop spinning
+            c.className = 'coin';
+            c.style.animationDuration = '';
+            c.style.transition = ''; // Clear transition
+
+            // Set Final Face
+            if (val === 2) {
+                c.classList.add('yin');
+                c.innerText = "阴";
+            } else {
+                c.classList.add('yang');
+                c.innerText = "阳";
+            }
+
+            // Final resting rotation (random angle on floor)
+            c.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+            completedCount++;
+            setVibration(3 - completedCount);
+
+            if (completedCount === 3) {
+                clearInterval(flickerInterval);
+                finishToss(lineVal);
+            }
+        }, delay);
+    });
+}
+
+function setVibration(level) {
+    if (window.vibrationTimer) clearInterval(window.vibrationTimer);
+    if (!navigator.vibrate) return;
+    navigator.vibrate(0); // Stop current
+
+    if (level <= 0) return;
+
+    // Simulate intensity levels using pulse patterns
+    const patterns = {
+        3: { duration: 80, interval: 100 },
+        2: { duration: 50, interval: 150 },
+        1: { duration: 30, interval: 300 }
+    };
+
+    const p = patterns[level];
+    const run = () => navigator.vibrate(p.duration);
+
+    run(); // Start immediately
+    window.vibrationTimer = setInterval(run, p.interval);
+}
+
+function finishToss(lineVal) {
+    castingStep++;
+
+    if (castingStep === 1) {
+        primaryHexContainer.style.display = 'block';
+    }
+
+    const stepName = ["初爻", "二爻", "三爻", "四爻", "五爻", "上爻"][castingStep - 1];
+    statusMsg.innerText = `${stepName}掷得: ${getLineName(lineVal)}`;
+
+    renderSingleLine(primaryHexContainer, lineVal, castingStep - 1);
+
+    castingBtn.disabled = false;
+
+    if (castingStep < 6) {
+        castingBtn.innerText = castingButtonText[castingStep];
+    } else {
+        statusMsg.innerText = "起卦完成";
+        castingBtn.style.display = 'none';
+        resetBtn.innerText = "重新起卦";
+        resetBtn.style.display = 'inline-block';
+
+        setTimeout(() => {
+            const result = divination.castResult;
+            renderResult(result);
+        }, 500);
+    }
+}
+
+function decomposeToCoins(sum) {
+    let coins;
+    if (sum === 6) coins = [2, 2, 2];
+    else if (sum === 9) coins = [3, 3, 3];
+    else if (sum === 7) coins = [2, 2, 3]; // 2+2+3=7 (Shao Yang) - 1 Yang, 2 Yins
+    else if (sum === 8) coins = [2, 3, 3]; // 2+3+3=8 (Shao Yin) - 1 Yin, 2 Yangs
+    else coins = [2, 3, 3];
+
+    // Shuffle for visual effect
+    for (let i = coins.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [coins[i], coins[j]] = [coins[j], coins[i]];
+    }
+    return coins;
+}
 
 function getLineName(val) {
     if (val === 6) return "老阴 (变)";
