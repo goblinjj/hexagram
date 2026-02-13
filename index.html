@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>六爻排盘 (Liu Yao Divination)</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="./node_modules/lunar-javascript/lunar.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>六爻排盘</h1>
+            <div id="date-info" class="date-info">
+                <!-- Date info will be populated here -->
+            </div>
+        </header>
+
+        <main>
+            <div class="controls">
+                <button id="cast-btn">起卦 (Toss Coins)</button>
+                <button id="reset-btn" style="display:none;">重置 (Reset)</button>
+                <div id="status-message">点击按钮开始起卦...</div>
+            </div>
+
+            <div class="divination-area">
+                <div id="primary-hexagram" class="hexagram-container">
+                    <h2>本卦</h2>
+                    <div class="hexagram-lines"></div>
+                    <div class="hexagram-info"></div>
+                </div>
+
+                <div id="varied-hexagram" class="hexagram-container" style="display:none;">
+                    <h2>变卦</h2>
+                    <div class="hexagram-lines"></div>
+                    <div class="hexagram-info"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
