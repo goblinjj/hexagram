@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+package-lock.json
+# (Optional: keep package-lock.json if you want deterministic builds, 
+# but for simple personal projects sometimes it's excluded. 
+# Standard practice is to KEEP it. I will NOT exclude it by default. 
+# But user might want to exclude it if they didn't commit it yet.
+# User `git push` showed 47 objects. `node_modules` is usually large.
+# If `node_modules` was already committed, .gitignore won't remove it from repo without `git rm --cached`.
+# I will add standard ignores.)
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Tools
+.vscode
+.idea
+*.swp
+*.swo
+
+# Project specific
+# (None yet)
