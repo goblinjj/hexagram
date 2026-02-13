@@ -1,4 +1,4 @@
-import { PALACE_ELEMENTS, BRANCH_ELEMENTS, NA_JIA_TABLE, TRIGRAM_PALACE_MAP } from '../data/constants.js';
+import { PALACE_ELEMENTS, BRANCH_ELEMENTS, NA_JIA_TABLE, TRIGRAM_PALACE_MAP, HEXAGRAM_NAMES } from '../data/constants.js';
 
 export class Divination {
     constructor() {
@@ -206,7 +206,11 @@ export class Divination {
             }
         }
 
+        const binaryStr = lines.join('');
+        const hexName = HEXAGRAM_NAMES[binaryStr] || "未知卦";
+
         return {
+            name: hexName,
             palace: palaceInfo,
             branches: allBranches,
             elements: allBranches.map(b => BRANCH_ELEMENTS[b]),

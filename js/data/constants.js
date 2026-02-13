@@ -1,12 +1,6 @@
 export const PALACE_ELEMENTS = {
-    "Qian": "Metal",
-    "Dui": "Metal",
-    "Li": "Fire",
-    "Zhen": "Wood",
-    "Xun": "Wood",
-    "Kan": "Water",
-    "Gen": "Earth",
-    "Kun": "Earth"
+    "Qian": "Metal", "Dui": "Metal", "Li": "Fire", "Zhen": "Wood",
+    "Xun": "Wood", "Kan": "Water", "Gen": "Earth", "Kun": "Earth"
 };
 
 export const BRANCH_ELEMENTS = {
@@ -15,85 +9,38 @@ export const BRANCH_ELEMENTS = {
     "Shen": "Metal", "You": "Metal", "Xu": "Earth", "Hai": "Water"
 };
 
-export const SIX_RELATIONS = {
-    "GenerateMe": "Parents",
-    "MeGenerate": "Offspring",
-    "ControlMe": "Official",
-    "MeControl": "Wealth",
-    "SameAsMe": "Brothers"
-};
-
-export const SIX_BEASTS = ["Green Dragon", "Vermilion Bird", "Hook Snake", "Flying Snake", "White Tiger", "Black Tortoise"];
-
-// 64 Hexagrams Data
-// Format: Binary (Bottom -> Top), 0=Yin, 1=Yang
-// Based on King Wen Sequence or standard lookup
-export const HEXAGRAMS_DATA = {
-    "111111": { name: "Qian", palace: "Qian", familyOrder: 1 }, // 乾为天
-    "000000": { name: "Kun", palace: "Kun", familyOrder: 1 },   // 坤为地
-    "100010": { name: "Tun", palace: "Kan", familyOrder: 2 },   // 水雷屯
-    "010001": { name: "Meng", palace: "Li", familyOrder: 0, distinct: "Li" }, // 山水蒙 - Logic needed for family determination if not explicit
-    
-    // ... This needs to be a complete list of 64 hexagrams with their binary codes and palaces. 
-    // For simplicity in this step, I will implement a helper to determine palace based on bit changes 
-    // rather than hardcoding all 64 if possible, OR I'll list the 8 pure hexagrams and derive others.
-    // Actually, a lookup table is safer for correctness.
-    // Let's implement the 8 Pure Hexagrams first to test the logic, then expand or use an algorithmic approach.
-};
-
-// Instead of hardcoding all 64, we can use the "Bit Change" method to find the Palace.
-// 1. Change 1st line (bottom) -> 1st generation
-// 2. Change 2nd line -> 2nd generation
-// ...
-// This logic will be implemented in the Divination class.
-
-// Na Jia Lookup Table (Inner/Outer Trigrams)
-// Trigrams: Qian (111), Dui (110), Li (101), Zhen (100), Xun (011), Kan (010), Gen (001), Kun (000)
-// Binary representation: Top-Mid-Bot (as standard integer? No, sticking to Bottom->Top array usually)
 export const NA_JIA_TABLE = {
-    "111": { // Qian
-        inner: ["Zi", "Yin", "Chen"],
-        outer: ["Wu", "Shen", "Xu"]
-    },
-    "000": { // Kun
-        inner: ["Wei", "Si", "Mao"],
-        outer: ["Chou", "Hai", "You"]
-    },
-    "100": { // Zhen (Bottom is Yang, others Yin? No, standard binary 001=1? Let's use array convention [1,0,0])
-             // Zhen is Yang at bottom: [1, 0, 0]
-        inner: ["Zi", "Yin", "Chen"],
-        outer: ["Wu", "Shen", "Xu"]
-    },
-    "011": { // Xun (Bottom Yin, others Yang: [0, 1, 1])
-        inner: ["Chou", "Hai", "You"],
-        outer: ["Wei", "Si", "Mao"]
-    },
-    "010": { // Kan (Middle Yang: [0, 1, 0])
-        inner: ["Yin", "Chen", "Wu"],
-        outer: ["Shen", "Xu", "Zi"]
-    },
-    "101": { // Li (Middle Yin: [1, 0, 1])
-        inner: ["Mao", "Chou", "Hai"],
-        outer: ["You", "Wei", "Si"]
-    },
-    "001": { // Gen (Top Yang: [0, 0, 1])
-        inner: ["Chen", "Wu", "Shen"],
-        outer: ["Xu", "Zi", "Yin"]
-    },
-    "110": { // Dui (Top Yin: [1, 1, 0])
-        inner: ["Si", "Mao", "Chou"],
-        outer: ["Hai", "You", "Wei"]
-    }
+    "111": { inner: ["Zi", "Yin", "Chen"], outer: ["Wu", "Shen", "Xu"] }, // Qian
+    "000": { inner: ["Wei", "Si", "Mao"], outer: ["Chou", "Hai", "You"] }, // Kun
+    "100": { inner: ["Zi", "Yin", "Chen"], outer: ["Wu", "Shen", "Xu"] }, // Zhen
+    "011": { inner: ["Chou", "Hai", "You"], outer: ["Wei", "Si", "Mao"] }, // Xun
+    "010": { inner: ["Yin", "Chen", "Wu"], outer: ["Shen", "Xu", "Zi"] }, // Kan
+    "101": { inner: ["Mao", "Chou", "Hai"], outer: ["You", "Wei", "Si"] }, // Li
+    "001": { inner: ["Chen", "Wu", "Shen"], outer: ["Xu", "Zi", "Yin"] }, // Gen
+    "110": { inner: ["Si", "Mao", "Chou"], outer: ["Hai", "You", "Wei"] }  // Dui
 };
 
-// Palace identity for the 8 pure trigrams (used to identify palace element)
 export const TRIGRAM_PALACE_MAP = {
-    "111": "Qian",
-    "110": "Dui",
-    "101": "Li",
-    "100": "Zhen",
-    "011": "Xun",
-    "010": "Kan",
-    "001": "Gen",
-    "000": "Kun"
+    "111": "Qian", "110": "Dui", "101": "Li", "100": "Zhen",
+    "011": "Xun", "010": "Kan", "001": "Gen", "000": "Kun"
+};
+
+// 64 Hexagrams Map (Binary Bottom->Top: NameCN)
+export const HEXAGRAM_NAMES = {
+    "111111": "乾为天", "000000": "坤为地", "100010": "水雷屯", "010001": "山水蒙",
+    "111010": "水天需", "010111": "天水讼", "010000": "地水师", "000010": "水地比",
+    "111011": "风天小畜", "110111": "天泽履", "111000": "地天泰", "000111": "天地否",
+    "101111": "天火同人", "111101": "火天大有", "001000": "地山谦", "000100": "雷地豫",
+    "100110": "泽雷随", "011001": "山风蛊", "110000": "地泽临", "000011": "风地观",
+    "100101": "火雷噬嗑", "101001": "山火贲", "000001": "山地剥", "100000": "地雷复",
+    "100111": "天雷无妄", "111001": "山天大畜", "100001": "山雷颐", "011110": "泽风大过",
+    "010010": "坎为水", "101101": "离为火", "001110": "泽山咸", "011100": "雷风恒",
+    "001111": "天山遁", "111100": "雷天大壮", "000101": "火地晋", "101000": "地火明夷",
+    "101011": "风火家人", "110101": "火泽睽", "001010": "水山蹇", "010100": "雷水解",
+    "110001": "山泽损", "100011": "风雷益", "111110": "泽天夬", "011111": "天风姤",
+    "000110": "泽地萃", "011000": "地风升", "010110": "泽水困", "011010": "水风井",
+    "101110": "泽火革", "011101": "火风鼎", "100100": "震为雷", "001001": "艮为山",
+    "001011": "风山渐", "110100": "雷泽归妹", "101100": "雷火丰", "001101": "火山旅",
+    "011011": "巽为风", "110110": "兑为泽", "010011": "风水涣", "110010": "水泽节",
+    "110011": "风泽中孚", "001100": "雷山小过", "101010": "水火既济", "010101": "火水未济"
 };
