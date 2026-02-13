@@ -5,17 +5,27 @@ export class Divination {
         this.castResult = []; // Array of 6 integers (6, 7, 8, 9)
     }
 
-    // Cast 3 coins, 6 times
-    cast() {
+    // Cast a single line (3 coins)
+    castLine() {
+        // 3 coins: Front(Yang)=3, Back(Yin)=2
+        let val = 0;
+        for (let c = 0; c < 3; c++) {
+            val += Math.random() < 0.5 ? 2 : 3;
+        }
+        this.castResult.push(val);
+        return val;
+    }
+
+    // Reset casting state
+    reset() {
         this.castResult = [];
+    }
+
+    // Cast full hexagram instantly (for testing or bulk)
+    cast() {
+        this.reset();
         for (let i = 0; i < 6; i++) {
-            // 3 coins: Front(Yang)=3, Back(Yin)=2
-            let val = 0;
-            for (let c = 0; c < 3; c++) {
-                // Random 2 or 3
-                val += Math.random() < 0.5 ? 2 : 3;
-            }
-            this.castResult.push(val);
+            this.castLine();
         }
         return this.castResult;
     }

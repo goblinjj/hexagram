@@ -51,6 +51,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const lunar = d.getLunar();
     const dayGan = lunar.getDayGan();
     currentDayStem = STEM_MAP[dayGan] || "Jia";
+
+    // Initialize UI state
+    window.startCasting();
 });
 
 castingBtn.addEventListener('click', () => {
@@ -74,6 +77,48 @@ resetBtn.addEventListener('click', () => {
     resetBtn.style.display = 'none';
     statusMsg.innerText = "点击按钮开始起卦...";
 });
+
+function getLineName(val) {
+    if (val === 6) return "老阴 (变)";
+    if (val === 7) return "少阳 (静)";
+    if (val === 8) return "少阴 (静)";
+    if (val === 9) return "老阳 (变)";
+    return "";
+}
+
+function renderSingleLine(container, val, index) {
+    const linesContainer = container.querySelector('.hexagram-lines');
+    const lineRow = document.createElement('div');
+    lineRow.className = 'line-row';
+
+    const leftDiv = document.createElement('div');
+    leftDiv.className = 'line-info-left';
+    leftDiv.innerText = `[${index + 1}]`;
+
+    const graphicDiv = document.createElement('div');
+    graphicDiv.className = 'line-graphic';
+
+    let isMoving = false;
+    let movingSymbol = "";
+    if (val === 6) { isMoving = true; movingSymbol = "X"; }
+    else if (val === 9) { isMoving = true; movingSymbol = "O"; }
+    if (isMoving) graphicDiv.classList.add('moving');
+
+    const lineDiv = document.createElement('div');
+    const isYang = (val % 2 !== 0);
+    lineDiv.className = isYang ? 'yang-line' : 'yin-line';
+    graphicDiv.appendChild(lineDiv);
+
+    const rightDiv = document.createElement('div');
+    rightDiv.className = 'line-info-right';
+    rightDiv.innerHTML = `${getLineName(val)} ${movingSymbol}`;
+
+    lineRow.appendChild(leftDiv);
+    lineRow.appendChild(graphicDiv);
+    lineRow.appendChild(rightDiv);
+
+    linesContainer.appendChild(lineRow);
+}
 
 function renderResult(castResult) {
     const hexs = divination.getHexagrams();
