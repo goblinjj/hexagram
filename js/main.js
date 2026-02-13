@@ -1,6 +1,7 @@
 import { Divination } from './core/divination.js';
 import { PALACE_ELEMENTS } from './data/constants.js';
 import { Solar, Lunar } from 'lunar-javascript';
+import { Takashima } from './modules/takashima.js';
 
 const castingBtn = document.getElementById('cast-btn');
 const resetBtn = document.getElementById('reset-btn');
@@ -10,15 +11,21 @@ const primaryHexContainer = document.getElementById('primary-hexagram');
 const variedHexContainer = document.getElementById('varied-hexagram');
 
 const divination = new Divination();
+const takashima = new Takashima();
+
+// Initialize Takashima data
+takashima.init();
 
 function initDate() {
     try {
         const d = Solar.fromDate(new Date());
         const lunar = d.getLunar();
-        const ganZhiYear = lunar.getYearInGanZhi();
-        const ganZhiMonth = lunar.getMonthInGanZhi();
-        const ganZhiDay = lunar.getDayInGanZhi();
-        const ganZhiHour = lunar.getTimeInGanZhi();
+        const bazi = lunar.getEightChar();
+
+        const ganZhiYear = bazi.getYear();
+        const ganZhiMonth = bazi.getMonth();
+        const ganZhiDay = bazi.getDay();
+        const ganZhiHour = bazi.getTime();
 
         dateInfo.innerHTML = `
             ${d.getYear()}年${d.getMonth()}月${d.getDay()}日 
@@ -28,7 +35,7 @@ function initDate() {
             (空亡: ${lunar.getDayXunKong()})
         `;
         return {
-            dayStem: lunar.getDayGan()
+            dayStem: bazi.getDay().substring(0, 1)
         };
 
     } catch (e) {
@@ -54,6 +61,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize UI state
     window.startCasting();
+
+    // Check for test mode
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('test')) {
+        divination.cast();
+        castingStep = 6;
+        primaryHexContainer.style.display = 'block';
+        coinContainer.style.display = 'none';
+        castingBtn.style.display = 'none';
+        resetBtn.style.display = 'inline-block';
+        resetBtn.innerText = "重新起卦";
+        statusMsg.innerText = "测试模式：直接生成结果";
+
+        renderResult(divination.castResult);
+    }
 });
 
 const castingButtonText = [
@@ -340,6 +362,18 @@ function renderResult(castResult) {
     const primaryChart = divination.chart(hexs.primary, currentDayStem);
     renderHexagram(primaryHexContainer, hexs.primary, primaryChart, hexs.raw, 'Primary');
 
+    // Determine focal element for Takashima explanation
+    // Construct binary codes
+    const primaryBinary = hexs.primary.join('');
+    // Varied might be null if no moving lines. 
+    // The calculateFocalElement expects variedCode string for 6-moving case.
+    const variedBinary = hexs.varied ? hexs.varied.join('') : "";
+
+    const focal = takashima.calculateFocalElement(hexs.raw, primaryBinary, variedBinary);
+
+    // Add button to Primary container
+    addTakashimaButton(primaryHexContainer, focal.hexCode, focal.index, focal.description);
+
     // Render Varied
     if (hexs.varied) {
         variedHexContainer.style.display = 'block';
@@ -447,3 +481,56 @@ function renderHexagram(container, binaryLines, chartData, rawLines, type) {
         <div>${pName}宫${ELEMENT_CN[PALACE_ELEMENTS[chartData.palace.palace]]} - ${genText}</div>
     `;
 }
+
+// Takashima Modal Logic
+const modal = document.getElementById("takashima-modal");
+const modalTitle = document.getElementById("modal-title");
+const modalBody = document.getElementById("modal-body");
+const closeBtn = document.querySelector(".close-btn");
+
+if (closeBtn) {
+    closeBtn.onclick = function () {
+        modal.style.display = "none";
+    }
+}
+
+window.onclick = function (event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
+
+async function showTakashimaModal(binaryCode, movingLineIndex) {
+    modalTitle.innerText = "加载中...";
+    modalBody.innerText = "正在获取高岛易断解释，请稍候...";
+    modal.style.display = "block";
+
+    const result = await takashima.getExplanation(binaryCode, movingLineIndex);
+    modalTitle.innerText = result.title;
+    modalBody.innerText = result.content;
+}
+
+// Add button to page dynamically or existing container
+function addTakashimaButton(container, binaryCode, movingLineIndex, description) {
+    // Check if button already exists to avoid duplicates if re-rendering
+    let btn = container.querySelector('.takashima-btn');
+    if (!btn) {
+        btn = document.createElement('button');
+        btn.className = 'takashima-btn';
+        btn.style.marginTop = '10px';
+        btn.style.fontSize = '14px';
+        btn.style.padding = '5px 10px';
+        btn.style.backgroundColor = '#666'; // Distinct from main action
+        container.querySelector('.hexagram-info').appendChild(btn);
+    }
+
+    // Update text
+    btn.innerText = description ? `查看高岛易断 (${description})` : "查看高岛易断";
+
+    // Update click handler with current context
+    btn.onclick = () => {
+        showTakashimaModal(binaryCode, movingLineIndex);
+    };
+}
+

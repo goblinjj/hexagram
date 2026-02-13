@@ -67,6 +67,8 @@ button:hover {
     width: 45%;
     min-width: 300px;
     margin-bottom: 20px;
+    text-align: center;
+    /* Centers h2 and inline-block content */
 }
 
 .hexagram-lines {
@@ -75,16 +77,23 @@ button:hover {
     /* Bottom to top */
     gap: 10px;
     margin: 20px 0;
+    align-items: center;
+    /* Ensure lines are centered */
 }
 
 .line-row {
     display: flex;
     align-items: center;
     height: 30px;
+    width: 100%;
+    /* Ensure row takes full width */
+    justify-content: center;
+    /* Center the graphic area */
 }
 
 .line-info-left {
-    width: 80px;
+    width: 120px;
+    /* Match right side width for centering */
     font-size: 12px;
     text-align: right;
     padding-right: 10px;
@@ -233,4 +242,75 @@ button:hover {
     background-image: linear-gradient(45deg, #e0e0e0, #fff, #e0e0e0);
     border-color: #999;
     color: #666;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
+    /* Glassmorphism effect on background */
+}
+
+.modal-content {
+    background-color: rgba(255, 255, 255, 0.95);
+    margin: 10% auto;
+    /* 10% from the top and centered */
+    padding: 30px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    position: relative;
+    animation: modalFadeIn 0.3s;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close-btn:hover,
+.close-btn:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#modal-title {
+    margin-top: 0;
+    color: #1d1d1f;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+#modal-body {
+    line-height: 1.6;
+    color: #333;
+    font-size: 16px;
+    white-space: pre-wrap;
+    /* Preserve formatting */
 }
