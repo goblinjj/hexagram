@@ -122,6 +122,21 @@
     background: var(--accent-color);
 }
 
+/* ── Per-section toggle button ── */
+.modal-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.section-toggle-btn {
+    font-size: 11px;
+    padding: 2px 10px;
+    margin-left: 8px;
+    flex-shrink: 0;
+    box-shadow: none;
+}
+
 /* ── Responsive ── */
 @media (max-width: 560px) {
     .hexagram-grid {

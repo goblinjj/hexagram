@@ -72,7 +72,6 @@ const modal = document.getElementById('study-modal');
 const modalTitle = document.getElementById('study-modal-title');
 const modalBody = document.getElementById('study-modal-body');
 const closeBtn = modal.querySelector('.close-btn');
-let isModern = false;
 
 closeBtn.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -82,11 +81,13 @@ modal.addEventListener('click', (e) => {
     if (e.target === modal) modal.style.display = 'none';
 });
 
+let sectionIdCounter = 0;
+
 async function showHexDetail(id) {
     modalTitle.innerText = '加载中...';
     modalBody.innerHTML = '';
     modal.style.display = 'block';
-    isModern = false;
+    sectionIdCounter = 0;
 
     const hex = await fetchHex(id);
     if (!hex) {
@@ -101,43 +102,16 @@ async function showHexDetail(id) {
 function renderDetail(hex) {
     modalTitle.innerText = hex.name;
 
-    // Check if any modern field exists
-    const hasModern = !!(
-        hex.modern_guaci ||
-        hex.modern_general_text ||
-        hex.modern_takashima_general ||
-        (hex.lines && Object.values(hex.lines).some(l =>
-            l.modern_text || l.modern_takashima_explanation
-        ))
-    );
-
     let html = '';
 
-    // Toggle button
-    if (hasModern) {
-        html += `<div class="modal-toggle-wrap">` +
-            `<button class="modal-toggle-btn${isModern ? ' active' : ''}" id="study-toggle-btn">` +
-            `${isModern ? '切换原文' : '切换译文'}` +
-            `</button></div>`;
-    }
-
     // 1. 卦辞
-    const guaci = pick(hex.guaci, hex.modern_guaci);
-    if (guaci) {
-        html += section('卦辞', guaci, 'modal-classical-text');
-    }
+    html += section('卦辞', hex.guaci, hex.modern_guaci, 'modal-classical-text');
 
     // 2. 总注
-    const general = pick(hex.general_text, hex.modern_general_text);
-    if (general) {
-        html += section('总注', general, 'modal-modern-text');
-    }
+    html += section('总注', hex.general_text, hex.modern_general_text, 'modal-modern-text');
 
     // 3. 高岛易断（总断）
-    const takGen = pick(hex.takashima_general, hex.modern_takashima_general);
-    if (takGen) {
-        html += section('高岛易断（总断）', takGen, 'modal-takashima-text');
-    }
+    html += section('高岛易断（总断）', hex.takashima_general, hex.modern_takashima_general, 'modal-takashima-text');
 
     // 4. 爻辞 1-6
     if (hex.lines) {
@@ -145,65 +119,54 @@ function renderDetail(hex) {
         for (let i = 1; i <= 6; i++) {
             const line = hex.lines[String(i)];
             if (!line) continue;
-
             const label = lineLabels[i - 1];
-
-            // 爻辞
-            const lineText = pick(line.text, line.modern_text);
-            if (lineText) {
-                html += section(`${label}爻 · 爻辞`, lineText, 'modal-classical-text');
-            }
-
-            // 高岛易断
-            const lineTak = pick(line.takashima_explanation, line.modern_takashima_explanation);
-            if (lineTak) {
-                html += section(`${label}爻 · 高岛易断`, lineTak, 'modal-takashima-text');
-            }
+            html += section(`${label}爻 · 爻辞`, line.text, line.modern_text, 'modal-classical-text');
+            html += section(`${label}爻 · 高岛易断`, line.takashima_explanation, line.modern_takashima_explanation, 'modal-takashima-text');
         }
 
-        // 5. 用九/用六 (lines["7"] if present)
+        // 5. 用九/用六
         const extra = hex.lines['7'];
         if (extra) {
-            const extraText = pick(extra.text, extra.modern_text);
-            if (extraText) {
-                html += section('用九/用六 · 辞', extraText, 'modal-classical-text');
-            }
-            const extraGuaci = pick(extra.guaci, extra.modern_guaci);
-            if (extraGuaci) {
-                html += section('用九/用六 · 卦辞', extraGuaci, 'modal-classical-text');
-            }
-            const extraTak = pick(extra.takashima_explanation, extra.modern_takashima_explanation);
-            if (extraTak) {
-                html += section('用九/用六 · 高岛易断', extraTak, 'modal-takashima-text');
-            }
+            html += section('用九/用六 · 辞', extra.text, extra.modern_text, 'modal-classical-text');
+            html += section('用九/用六 · 卦辞', extra.guaci, extra.modern_guaci, 'modal-classical-text');
+            html += section('用九/用六 · 高岛易断', extra.takashima_explanation, extra.modern_takashima_explanation, 'modal-takashima-text');
         }
     }
 
     modalBody.innerHTML = html;
 
-    // Bind toggle
+    // Bind per-section toggle buttons
+    modalBody.querySelectorAll('.section-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const sec = btn.closest('.modal-section');
+            const origEl = sec.querySelector('.section-original');
+            const modernEl = sec.querySelector('.section-modern');
+            const showingModern = !modernEl.hidden;
+            origEl.hidden = !showingModern;
+            modernEl.hidden = showingModern;
+            btn.textContent = showingModern ? '译文' : '原文';
+            btn.classList.toggle('active', !showingModern);
+        });
+    });
+}
+
+function section(title, original, modern, cssClass) {
+    if (!original) return '';
+    const hasModern = !!modern;
+
+    let toggleHtml = '';
     if (hasModern) {
-        const btn = document.getElementById('study-toggle-btn');
-        if (btn) {
-            btn.addEventListener('click', () => {
-                isModern = !isModern;
-                renderDetail(hex);
-            });
-        }
+        toggleHtml = `<button class="section-toggle-btn modal-toggle-btn">译文</button>`;
     }
-}
 
-/** Pick original or modern text based on toggle, with fallback */
-function pick(original, modern) {
-    if (isModern) return modern || original || '';
-    return original || '';
-}
+    const modernHtml = hasModern
+        ? `<div class="${cssClass} section-modern" hidden>${escapeHtml(modern)}</div>`
+        : '';
 
-function section(title, text, cssClass) {
-    if (!text) return '';
     return `<div class="modal-section">` +
-        `<div class="modal-section-title">${title}</div>` +
-        `<div class="${cssClass}">${escapeHtml(text)}</div>` +
+        `<div class="modal-section-title">${title}${toggleHtml}</div>` +
+        `<div class="${cssClass} section-original">${escapeHtml(original)}</div>` +
+        modernHtml +
         `</div>`;
 }
 
