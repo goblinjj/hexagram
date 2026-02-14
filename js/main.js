@@ -510,16 +510,12 @@ modal.addEventListener('click', function (event) {
 });
 
 
-let currentTakashimaResult = null;
-let isModernMode = false;
-
 async function showTakashimaModal(binaryCode, movingLineIndex) {
     modalTitle.innerText = "加载中...";
     modalBody.innerHTML = "正在获取高岛易断解释，请稍候...";
     modal.style.display = "block";
 
     const result = await takashima.getExplanation(binaryCode, movingLineIndex);
-    currentTakashimaResult = result;
 
     if (result.error) {
         modalTitle.innerText = result.title;
@@ -527,76 +523,54 @@ async function showTakashimaModal(binaryCode, movingLineIndex) {
         return;
     }
 
-    // Check if modern translations exist
-    const hasModern = !!(result.modern_guaci || result.modern_general_text || result.modern_takashima);
-    isModernMode = false;
-    renderTakashimaContent(result, hasModern);
+    renderTakashimaContent(result);
 }
 
-function renderTakashimaContent(result, hasModern) {
+function sectionHtml(title, original, modern, cssClass) {
+    if (!original) return '';
+    const hasModern = !!modern;
+    const toggleBtn = hasModern
+        ? `<button class="section-toggle-btn modal-toggle-btn">译文</button>`
+        : '';
+    const modernBlock = hasModern
+        ? `<div class="${cssClass} section-modern" hidden>${escapeHtml(modern)}</div>`
+        : '';
+    return `<div class="modal-section">` +
+        `<div class="modal-section-title">${title}${toggleBtn}</div>` +
+        `<div class="${cssClass} section-original">${escapeHtml(original)}</div>` +
+        modernBlock +
+        `</div>`;
+}
+
+function renderTakashimaContent(result) {
     modalTitle.innerText = result.title;
 
     let bodyHtml = '';
 
-    // Toggle button
-    if (hasModern) {
-        bodyHtml += `<div class="modal-toggle-wrap">` +
-            `<button class="modal-toggle-btn${isModernMode ? ' active' : ''}" id="toggle-modern-btn">` +
-            `${isModernMode ? '切换原文' : '切换译文'}` +
-            `</button></div>`;
-    }
+    bodyHtml += sectionHtml('卦辞', result.guaci, result.modern_guaci, 'modal-classical-text');
+    bodyHtml += sectionHtml('总注', result.general_text, result.modern_general_text, 'modal-modern-text');
 
-    const guaci = isModernMode ? (result.modern_guaci || result.guaci) : result.guaci;
-    const generalText = isModernMode ? (result.modern_general_text || result.general_text) : result.general_text;
-    const takashimaText = isModernMode ? (result.modern_takashima || result.takashima) : result.takashima;
-
-    // Section 1: 卦辞
-    if (guaci) {
-        bodyHtml += `<div class="modal-section">` +
-            `<div class="modal-section-title">卦辞</div>` +
-            `<div class="modal-classical-text">${escapeHtml(guaci)}</div>` +
-            `</div>`;
-    }
-
-    // Section 2: 总注
-    if (generalText) {
-        bodyHtml += `<div class="modal-section">` +
-            `<div class="modal-section-title">总注</div>` +
-            `<div class="modal-modern-text">${escapeHtml(generalText)}</div>` +
-            `</div>`;
-    }
-
-    // Section 3: 爻辞 (only for moving lines)
     if (result.lineText !== undefined) {
-        const lineText = isModernMode ? (result.modern_lineText || result.lineText) : result.lineText;
-        if (lineText) {
-            bodyHtml += `<div class="modal-section">` +
-                `<div class="modal-section-title">爻辞</div>` +
-                `<div class="modal-classical-text">${escapeHtml(lineText)}</div>` +
-                `</div>`;
-        }
+        bodyHtml += sectionHtml('爻辞', result.lineText, result.modern_lineText, 'modal-classical-text');
     }
 
-    // Section 4: 高岛易断
-    if (takashimaText) {
-        bodyHtml += `<div class="modal-section">` +
-            `<div class="modal-section-title">高岛易断</div>` +
-            `<div class="modal-takashima-text">${escapeHtml(takashimaText)}</div>` +
-            `</div>`;
-    }
+    bodyHtml += sectionHtml('高岛易断', result.takashima, result.modern_takashima, 'modal-takashima-text');
 
     modalBody.innerHTML = bodyHtml;
 
-    // Bind toggle button
-    if (hasModern) {
-        const toggleBtn = document.getElementById('toggle-modern-btn');
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', () => {
-                isModernMode = !isModernMode;
-                renderTakashimaContent(result, hasModern);
-            });
-        }
-    }
+    // Bind per-section toggle buttons
+    modalBody.querySelectorAll('.section-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const sec = btn.closest('.modal-section');
+            const origEl = sec.querySelector('.section-original');
+            const modernEl = sec.querySelector('.section-modern');
+            const showingModern = !modernEl.hidden;
+            origEl.hidden = !showingModern;
+            modernEl.hidden = showingModern;
+            btn.textContent = showingModern ? '译文' : '原文';
+            btn.classList.toggle('active', !showingModern);
+        });
+    });
 }
 
 function escapeHtml(text) {
