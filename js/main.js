@@ -379,6 +379,10 @@ function renderResult(castResult) {
         variedHexContainer.style.display = 'block';
         const variedChart = divination.chart(hexs.varied, currentDayStem);
         renderHexagram(variedHexContainer, hexs.varied, variedChart, null, 'Varied');
+
+        // Add Takashima button for varied hexagram (general text, no moving line)
+        const variedBinaryCode = hexs.varied.join('');
+        addTakashimaButton(variedHexContainer, variedBinaryCode, null, "变卦卦辞");
     } else {
         variedHexContainer.style.display = 'none';
     }
@@ -488,17 +492,22 @@ const modalTitle = document.getElementById("modal-title");
 const modalBody = document.getElementById("modal-body");
 const closeBtn = document.querySelector(".close-btn");
 
-if (closeBtn) {
-    closeBtn.onclick = function () {
-        modal.style.display = "none";
-    }
+function closeModal() {
+    modal.style.display = "none";
 }
 
-window.onclick = function (event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
+if (closeBtn) {
+    closeBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        closeModal();
+    });
 }
+
+modal.addEventListener('click', function (event) {
+    if (event.target === modal) {
+        closeModal();
+    }
+});
 
 
 async function showTakashimaModal(binaryCode, movingLineIndex) {
