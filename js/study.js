@@ -31,8 +31,22 @@ function renderGrid() {
         const cell = document.createElement('div');
         cell.className = 'hex-cell';
         cell.dataset.id = id;
+        // Build mini 6-line hexagram (display top-to-bottom = reverse of binary)
+        let linesHtml = '';
+        if (code) {
+            linesHtml = '<div class="hex-cell-lines">';
+            for (let i = 5; i >= 0; i--) {
+                const bit = code[i];
+                linesHtml += bit === '1'
+                    ? '<div class="hex-mini-yang"></div>'
+                    : '<div class="hex-mini-yin"><span></span><span></span></div>';
+            }
+            linesHtml += '</div>';
+        }
+
         cell.innerHTML =
             `<span class="hex-cell-num">${id}</span>` +
+            linesHtml +
             `<span class="hex-cell-name">${name}</span>`;
         cell.addEventListener('click', () => showHexDetail(id));
         grid.appendChild(cell);
