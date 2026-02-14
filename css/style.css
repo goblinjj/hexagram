@@ -749,7 +749,7 @@ button:disabled {
 
 /* ── Study Link ── */
 .study-link {
-    display: inline-block;
+    display: block;
     margin-top: 8px;
     font-size: 13px;
     color: var(--accent-gold);

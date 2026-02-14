@@ -412,7 +412,7 @@ function renderResult(castResult) {
 
     // Add button to Primary container
     addTakashimaButton(primaryHexContainer, focal.hexCode, focal.index, focal.description);
-    addStudyLink(primaryHexContainer, primaryBinary);
+    addStudyLink(primaryHexContainer, primaryBinary, primaryChart.name);
 
     // Render Varied
     let variedName = null;
@@ -425,7 +425,7 @@ function renderResult(castResult) {
         // Add Takashima button for varied hexagram (general text, no moving line)
         const variedBinaryCode = hexs.varied.join('');
         addTakashimaButton(variedHexContainer, variedBinaryCode, null, "变卦卦辞");
-        addStudyLink(variedHexContainer, variedBinaryCode);
+        addStudyLink(variedHexContainer, variedBinaryCode, variedName);
     } else {
         variedHexContainer.style.display = 'none';
     }
@@ -698,7 +698,7 @@ function addTakashimaButton(container, binaryCode, movingLineIndex, description)
     };
 }
 
-function addStudyLink(container, binaryCode) {
+function addStudyLink(container, binaryCode, hexName) {
     let link = container.querySelector('.study-link');
     if (!link) {
         link = document.createElement('a');
@@ -709,7 +709,7 @@ function addStudyLink(container, binaryCode) {
     const hexId = takashima.indexMap ? takashima.indexMap[binaryCode] : null;
     if (hexId) {
         link.href = `study.html?hex=${hexId}`;
-        link.textContent = '查看卦象详情';
+        link.textContent = `查看${hexName || '卦象'}完整解释`;
         link.style.display = '';
     } else {
         link.style.display = 'none';
