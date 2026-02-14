@@ -31,6 +31,21 @@ async function init() {
     }
 
     renderGrid();
+
+    const searchInput = document.getElementById('hex-search');
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.trim();
+            document.querySelectorAll('.hex-cell').forEach(cell => {
+                const name = cell.querySelector('.hex-cell-name');
+                if (!query || (name && name.textContent.includes(query))) {
+                    cell.style.display = '';
+                } else {
+                    cell.style.display = 'none';
+                }
+            });
+        });
+    }
 }
 
 function renderGrid() {
@@ -176,6 +191,8 @@ function renderDetail(hex) {
 
     modalBody.innerHTML = html;
 
+    buildModalNav(modalBody);
+
     // Bind per-section toggle buttons
     modalBody.querySelectorAll('.section-toggle-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -191,8 +208,29 @@ function renderDetail(hex) {
     });
 }
 
+function buildModalNav(bodyElement) {
+    const sections = bodyElement.querySelectorAll('[data-nav-title]');
+    if (sections.length < 3) return;
+
+    const nav = document.createElement('div');
+    nav.className = 'modal-nav';
+    sections.forEach(sec => {
+        const link = document.createElement('a');
+        link.className = 'modal-nav-link';
+        link.textContent = sec.dataset.navTitle;
+        link.href = '#' + sec.id;
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        nav.appendChild(link);
+    });
+    bodyElement.insertBefore(nav, bodyElement.firstChild);
+}
+
 function section(title, original, modern, cssClass) {
     if (!original) return '';
+    const sid = `study-sec-${sectionIdCounter++}`;
     const hasModern = !!modern;
 
     let toggleHtml = '';
@@ -204,7 +242,7 @@ function section(title, original, modern, cssClass) {
         ? `<div class="${cssClass} section-modern" hidden>${escapeHtml(modern)}</div>`
         : '';
 
-    return `<div class="modal-section">` +
+    return `<div class="modal-section" id="${sid}" data-nav-title="${title}">` +
         `<div class="modal-section-title">${title}${toggleHtml}</div>` +
         `<div class="${cssClass} section-original">${escapeHtml(original)}</div>` +
         modernHtml +

@@ -28,14 +28,19 @@ function initDate() {
         const ganZhiHour = bazi.getTime();
 
         dateInfo.innerHTML = `
-            ${d.getYear()}年${d.getMonth()}月${d.getDay()}日 
-            农历:${lunar.getMonthInChinese()}月${lunar.getDayInChinese()} 
+            ${d.getYear()}年${d.getMonth()}月${d.getDay()}日
+            农历:${lunar.getMonthInChinese()}月${lunar.getDayInChinese()}
             <br>
-            ${ganZhiYear}年 ${ganZhiMonth}月 ${ganZhiDay}日 ${ganZhiHour}时
-            (空亡: ${lunar.getDayXunKong()})
+            ${ganZhiYear}年 ${ganZhiMonth}月 ${ganZhiDay}日
+            <span class="shichen-highlight">${ganZhiHour}时</span>
+            <br>
+            <span class="xunkong-info">空亡: ${lunar.getDayXunKong()}</span>
         `;
         return {
-            dayStem: bazi.getDay().substring(0, 1)
+            dayStem: bazi.getDay().substring(0, 1),
+            xunKong: lunar.getDayXunKong(),
+            dayBranch: lunar.getDayZhi(),
+            monthBranch: lunar.getMonthZhi()
         };
 
     } catch (e) {
@@ -50,7 +55,35 @@ const STEM_MAP = {
     "己": "Ji", "庚": "Geng", "辛": "Xin", "壬": "Ren", "癸": "Gui"
 };
 
+const BRANCH_ELEMENT_CN = {
+    "子": "Water", "丑": "Earth", "寅": "Wood", "卯": "Wood",
+    "辰": "Earth", "巳": "Fire", "午": "Fire", "未": "Earth",
+    "申": "Metal", "酉": "Metal", "戌": "Earth", "亥": "Water"
+};
+
+// 五行生克
+const GENERATE_MAP = { "Metal": "Water", "Water": "Wood", "Wood": "Fire", "Fire": "Earth", "Earth": "Metal" };
+const OVERCOME_MAP = { "Metal": "Wood", "Wood": "Earth", "Earth": "Water", "Water": "Fire", "Fire": "Metal" };
+
+function getElementStrength(monthElement, lineElement) {
+    if (monthElement === lineElement) return "旺";           // 同我
+    if (GENERATE_MAP[monthElement] === lineElement) return "相"; // 月生爻
+    if (GENERATE_MAP[lineElement] === monthElement) return "休"; // 爻生月
+    if (OVERCOME_MAP[lineElement] === monthElement) return "囚"; // 爻克月
+    if (OVERCOME_MAP[monthElement] === lineElement) return "死"; // 月克爻
+    return "";
+}
+
+const CLASH_MAP = {
+    "子": "午", "午": "子", "丑": "未", "未": "丑",
+    "寅": "申", "申": "寅", "卯": "酉", "酉": "卯",
+    "辰": "戌", "戌": "辰", "巳": "亥", "亥": "巳"
+};
+
 let currentDayStem = "Jia";
+let currentXunKong = "";
+let currentDayBranch = "";
+let currentMonthBranch = "";
 
 document.addEventListener('DOMContentLoaded', () => {
     const dateData = initDate();
@@ -58,6 +91,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const lunar = d.getLunar();
     const dayGan = lunar.getDayGan();
     currentDayStem = STEM_MAP[dayGan] || "Jia";
+    currentXunKong = dateData.xunKong || "";
+    currentDayBranch = dateData.dayBranch || "";
+    currentMonthBranch = dateData.monthBranch || "";
+
+    renderHistoryList();
 
     // Initialize UI state
     window.startCasting();
@@ -375,9 +413,11 @@ function renderResult(castResult) {
     addTakashimaButton(primaryHexContainer, focal.hexCode, focal.index, focal.description);
 
     // Render Varied
+    let variedName = null;
     if (hexs.varied) {
         variedHexContainer.style.display = 'block';
         const variedChart = divination.chart(hexs.varied, currentDayStem);
+        variedName = variedChart.name;
         renderHexagram(variedHexContainer, hexs.varied, variedChart, null, 'Varied');
 
         // Add Takashima button for varied hexagram (general text, no moving line)
@@ -385,6 +425,11 @@ function renderResult(castResult) {
         addTakashimaButton(variedHexContainer, variedBinaryCode, null, "变卦卦辞");
     } else {
         variedHexContainer.style.display = 'none';
+    }
+
+    // Save to history (skip when restoring)
+    if (!renderResult._skipSave) {
+        saveToHistory(hexs.raw, primaryChart.name, variedName);
     }
 }
 
@@ -415,7 +460,7 @@ function renderHexagram(container, binaryLines, chartData, rawLines, type) {
         const ying = (chartData.palace.ying === (index + 1)) ? "应" : "";
 
         let hiddenText = "";
-        if (type === 'Primary' && chartData.hiddenSpirits && chartData.hiddenSpirits[index]) {
+        if (chartData.hiddenSpirits && chartData.hiddenSpirits[index]) {
             const hs = chartData.hiddenSpirits[index];
             const hsRel = REL_CN[hs.relation];
             const hsBranch = BRANCH_CN[hs.branch];
@@ -441,11 +486,33 @@ function renderHexagram(container, binaryLines, chartData, rawLines, type) {
         const branchText = BRANCH_CN[branch] || branch;
         const elText = ELEMENT_CN[element] || element;
 
-        const leftText = type === 'Primary'
-            ? `${beastText} ${relText}`
-            : `${relText}`;
+        const leftText = `${beastText} ${relText}`;
 
-        const rightText = `${branchText}${elText} ${shi}${ying} ${movingSymbol} ${hiddenText}`;
+        let tags = '';
+        if (currentXunKong && currentXunKong.includes(branchText)) {
+            tags += '<span class="tag tag-kong">空</span>';
+        }
+        if (currentDayBranch && CLASH_MAP[branchText] === currentDayBranch) {
+            tags += '<span class="tag tag-ripo">日破</span>';
+        }
+        if (currentMonthBranch && CLASH_MAP[branchText] === currentMonthBranch) {
+            tags += '<span class="tag tag-yuepo">月破</span>';
+        }
+        if (currentMonthBranch) {
+            const monthEl = BRANCH_ELEMENT_CN[currentMonthBranch];
+            if (monthEl && element) {
+                const strength = getElementStrength(monthEl, element);
+                if (strength) {
+                    const strengthClass = {
+                        "旺": "tag-wang", "相": "tag-xiang",
+                        "休": "tag-xiu", "囚": "tag-qiu", "死": "tag-si"
+                    }[strength] || "";
+                    tags += `<span class="tag ${strengthClass}">${strength}</span>`;
+                }
+            }
+        }
+
+        const rightText = `${branchText}${elText} ${shi}${ying} ${movingSymbol} ${tags} ${hiddenText}`;
 
         const leftDiv = document.createElement('div');
         leftDiv.className = 'line-info-left';
@@ -526,8 +593,11 @@ async function showTakashimaModal(binaryCode, movingLineIndex) {
     renderTakashimaContent(result);
 }
 
+let mainSectionIdCounter = 0;
+
 function sectionHtml(title, original, modern, cssClass) {
     if (!original) return '';
+    const sid = `main-sec-${mainSectionIdCounter++}`;
     const hasModern = !!modern;
     const toggleBtn = hasModern
         ? `<button class="section-toggle-btn modal-toggle-btn">译文</button>`
@@ -535,14 +605,35 @@ function sectionHtml(title, original, modern, cssClass) {
     const modernBlock = hasModern
         ? `<div class="${cssClass} section-modern" hidden>${escapeHtml(modern)}</div>`
         : '';
-    return `<div class="modal-section">` +
+    return `<div class="modal-section" id="${sid}" data-nav-title="${title}">` +
         `<div class="modal-section-title">${title}${toggleBtn}</div>` +
         `<div class="${cssClass} section-original">${escapeHtml(original)}</div>` +
         modernBlock +
         `</div>`;
 }
 
+function buildModalNav(bodyElement) {
+    const sections = bodyElement.querySelectorAll('[data-nav-title]');
+    if (sections.length < 3) return;
+
+    const nav = document.createElement('div');
+    nav.className = 'modal-nav';
+    sections.forEach(sec => {
+        const link = document.createElement('a');
+        link.className = 'modal-nav-link';
+        link.textContent = sec.dataset.navTitle;
+        link.href = '#' + sec.id;
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        nav.appendChild(link);
+    });
+    bodyElement.insertBefore(nav, bodyElement.firstChild);
+}
+
 function renderTakashimaContent(result) {
+    mainSectionIdCounter = 0;
     modalTitle.innerText = result.title;
 
     let bodyHtml = '';
@@ -557,6 +648,8 @@ function renderTakashimaContent(result) {
     bodyHtml += sectionHtml('高岛易断', result.takashima, result.modern_takashima, 'modal-takashima-text');
 
     modalBody.innerHTML = bodyHtml;
+
+    buildModalNav(modalBody);
 
     // Bind per-section toggle buttons
     modalBody.querySelectorAll('.section-toggle-btn').forEach(btn => {
@@ -600,5 +693,92 @@ function addTakashimaButton(container, binaryCode, movingLineIndex, description)
     btn.onclick = () => {
         showTakashimaModal(binaryCode, movingLineIndex);
     };
+}
+
+// ── History (localStorage) ──
+const HISTORY_KEY = 'hexagram_history';
+const HISTORY_MAX = 50;
+
+function getHistory() {
+    try {
+        return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+    } catch { return []; }
+}
+
+function saveToHistory(raw, primaryName, variedName) {
+    const history = getHistory();
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const dateStr = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+    const d = Solar.fromDate(now);
+    const lunar = d.getLunar();
+    const bazi = lunar.getEightChar();
+
+    const record = {
+        id: Date.now(),
+        date: dateStr,
+        ganZhiDate: `${bazi.getYear()}年 ${bazi.getMonth()}月 ${bazi.getDay()}日 ${bazi.getTime()}时`,
+        raw: raw,
+        primaryName: primaryName,
+        variedName: variedName,
+        dayStem: currentDayStem,
+        dayBranch: currentDayBranch,
+        monthBranch: currentMonthBranch,
+        xunKong: currentXunKong
+    };
+
+    history.unshift(record);
+    if (history.length > HISTORY_MAX) history.length = HISTORY_MAX;
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    renderHistoryList();
+}
+
+function renderHistoryList() {
+    const section = document.getElementById('history-section');
+    const list = document.getElementById('history-list');
+    if (!section || !list) return;
+
+    const history = getHistory();
+    if (history.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+    list.innerHTML = '';
+
+    history.forEach(record => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        const variedText = record.variedName ? ` → ${record.variedName}` : '';
+        item.innerHTML = `
+            <span class="history-date">${record.date}</span>
+            <span class="history-name">${record.primaryName}${variedText}</span>
+        `;
+        item.addEventListener('click', () => restoreFromHistory(record));
+        list.appendChild(item);
+    });
+}
+
+function restoreFromHistory(record) {
+    // Restore date context
+    if (record.dayStem) currentDayStem = record.dayStem;
+    if (record.dayBranch) currentDayBranch = record.dayBranch;
+    if (record.monthBranch) currentMonthBranch = record.monthBranch;
+    if (record.xunKong) currentXunKong = record.xunKong;
+
+    divination.castResult = record.raw;
+    castingStep = 6;
+    primaryHexContainer.style.display = 'block';
+    coinContainer.style.display = 'none';
+    castingBtn.style.display = 'none';
+    resetBtn.style.display = 'inline-block';
+    resetBtn.innerText = "重新起卦";
+    statusMsg.innerText = `历史记录: ${record.primaryName}`;
+
+    renderResult._skipSave = true;
+    renderResult(record.raw);
+    renderResult._skipSave = false;
 }
 

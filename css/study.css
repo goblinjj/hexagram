@@ -20,6 +20,31 @@
     color: var(--accent-gold-light);
 }
 
+/* ── Search ── */
+.search-wrap {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.hex-search-input {
+    font-family: "Noto Serif SC", "Songti SC", serif;
+    font-size: 14px;
+    padding: 8px 16px;
+    width: 100%;
+    max-width: 320px;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background: var(--bg-paper);
+    color: var(--text-color);
+    letter-spacing: 0.05em;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.hex-search-input:focus {
+    border-color: var(--accent-gold);
+}
+
 /* ── Hexagram Grid (8×8) ── */
 .hexagram-grid {
     display: grid;
@@ -176,5 +201,28 @@
 @media (min-width: 561px) and (max-width: 680px) {
     .hexagram-grid {
         grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+@media (max-width: 400px) {
+    .hexagram-grid {
+        gap: 4px;
+    }
+
+    .hex-cell {
+        padding: 4px 2px;
+    }
+
+    .hex-cell-name {
+        font-size: 11px;
+    }
+
+    .hex-cell-num {
+        font-size: 10px;
+    }
+
+    .hex-search-input {
+        font-size: 13px;
+        padding: 6px 12px;
     }
 }
