@@ -207,7 +207,7 @@ button:disabled {
 }
 
 .line-info-left {
-    width: 110px;
+    width: 120px;
     font-size: 12px;
     text-align: right;
     padding-right: 10px;
@@ -266,7 +266,7 @@ button:disabled {
 }
 
 .line-info-right {
-    width: 130px;
+    width: 120px;
     font-size: 12px;
     padding-left: 10px;
     color: var(--text-muted);
@@ -564,12 +564,12 @@ button:disabled {
     }
 
     .line-info-left {
-        width: 80px;
+        width: 90px;
         font-size: 11px;
     }
 
     .line-info-right {
-        width: 100px;
+        width: 90px;
         font-size: 11px;
     }
 
