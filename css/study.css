@@ -122,7 +122,12 @@
     width: 90%;
     margin: 4% auto;
     max-height: 88vh;
+}
+
+#study-modal-body {
     overflow-y: auto;
+    flex: 1;
+    min-height: 0;
 }
 
 #study-modal-title {

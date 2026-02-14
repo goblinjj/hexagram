@@ -223,15 +223,13 @@ button:disabled {
 /* ── Divination Area ── */
 .divination-area {
     display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 20px;
 }
 
 .hexagram-container {
-    width: 45%;
-    min-width: 300px;
-    margin-bottom: 20px;
+    width: 100%;
+    margin-bottom: 0;
     text-align: center;
     padding: 20px 16px;
     background: rgba(250, 246, 239, 0.5);
@@ -271,7 +269,7 @@ button:disabled {
 .line-row {
     display: flex;
     align-items: center;
-    height: 30px;
+    min-height: 30px;
     width: 100%;
     justify-content: center;
 }
@@ -336,12 +334,14 @@ button:disabled {
 }
 
 .line-info-right {
-    width: 120px;
+    width: 200px;
     font-size: 12px;
     padding-left: 10px;
     color: var(--text-muted);
     display: flex;
-    gap: 4px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 3px;
     letter-spacing: 0.02em;
 }
 
@@ -455,8 +455,9 @@ button:disabled {
     box-shadow: 0 8px 32px rgba(42, 32, 24, 0.3);
     position: relative;
     animation: modalFadeIn 0.3s ease;
-    overflow-y: auto;
     max-height: 85vh;
+    display: flex;
+    flex-direction: column;
 }
 
 @keyframes modalFadeIn {
@@ -519,6 +520,9 @@ button:disabled {
     color: var(--text-color);
     font-size: 15px;
     letter-spacing: 0.03em;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
 }
 
 .modal-section {
@@ -628,7 +632,7 @@ button:disabled {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    padding: 8px 0 12px;
+    padding: 10px 0;
     margin-bottom: 12px;
     background: var(--bg-paper);
     border-bottom: 1px solid var(--border-light);
@@ -714,18 +718,13 @@ button:disabled {
         font-size: 2em;
     }
 
-    .hexagram-container {
-        width: 100%;
-        min-width: unset;
-    }
-
     .line-info-left {
         width: 90px;
         font-size: 11px;
     }
 
     .line-info-right {
-        width: 90px;
+        width: 140px;
         font-size: 11px;
     }
 
@@ -742,7 +741,7 @@ button:disabled {
 
     .modal-content {
         width: 95%;
-        margin: 6% auto;
+        margin: 4% auto;
         padding: 20px;
     }
 
@@ -763,7 +762,7 @@ button:disabled {
     }
 
     .line-info-right {
-        width: 70px;
+        width: 110px;
         font-size: 10px;
     }
 
