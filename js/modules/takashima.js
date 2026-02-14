@@ -48,15 +48,19 @@ export class Takashima {
             const lineKey = (movingLineIndex + 1).toString();
             const line = hex.lines[lineKey];
 
-            if (!line) return { title: hex.name, content: "未找到该爻的变辞。" };
+            if (!line) return { title: hex.name, originalText: '', modernText: '', content: "未找到该爻的变辞。" };
 
             return {
                 title: `${hex.name} - ${lineKey === '1' ? '初' : (lineKey === '6' ? '上' : lineKey)}爻变`,
+                originalText: line.text || '',
+                modernText: line.modern_text || '',
                 content: line.takashima_explanation
             };
         } else {
             return {
                 title: `${hex.name} - 总断`,
+                originalText: hex.guaci || '',
+                modernText: hex.modern_guaci || '',
                 content: hex.takashima_general
             };
         }

@@ -512,12 +512,42 @@ modal.addEventListener('click', function (event) {
 
 async function showTakashimaModal(binaryCode, movingLineIndex) {
     modalTitle.innerText = "加载中...";
-    modalBody.innerText = "正在获取高岛易断解释，请稍候...";
+    modalBody.innerHTML = "正在获取高岛易断解释，请稍候...";
     modal.style.display = "block";
 
     const result = await takashima.getExplanation(binaryCode, movingLineIndex);
     modalTitle.innerText = result.title;
-    modalBody.innerText = result.content;
+
+    let bodyHtml = '';
+
+    if (result.originalText) {
+        bodyHtml += `<div class="modal-section">` +
+            `<div class="modal-section-title">原文</div>` +
+            `<div class="modal-classical-text">${escapeHtml(result.originalText)}</div>` +
+            `</div>`;
+    }
+
+    if (result.modernText) {
+        bodyHtml += `<div class="modal-section">` +
+            `<div class="modal-section-title">白话译文</div>` +
+            `<div class="modal-modern-text">${escapeHtml(result.modernText)}</div>` +
+            `</div>`;
+    }
+
+    if (result.content) {
+        bodyHtml += `<div class="modal-section">` +
+            `<div class="modal-section-title">高岛易断</div>` +
+            `<div class="modal-takashima-text">${escapeHtml(result.content)}</div>` +
+            `</div>`;
+    }
+
+    modalBody.innerHTML = bodyHtml;
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML.replace(/\n/g, '<br>');
 }
 
 // Add button to page dynamically or existing container
