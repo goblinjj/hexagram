@@ -540,7 +540,7 @@ function renderHexagram(container, binaryLines, chartData, rawLines, type) {
         linesContainer.appendChild(lineRow);
     });
 
-    const infoContainer = container.querySelector('.hexagram-info');
+    const subtitleContainer = container.querySelector('.hexagram-subtitle');
     const PALACE_CN = {
         "Qian": "乾", "Dui": "兑", "Li": "离", "Zhen": "震", "Xun": "巽", "Kan": "坎", "Gen": "艮", "Kun": "坤"
     };
@@ -550,9 +550,9 @@ function renderHexagram(container, binaryLines, chartData, rawLines, type) {
             (chartData.palace.generation === "GuiHun" ? "归魂" :
                 chartData.palace.generation + "世"));
 
-    infoContainer.innerHTML = `
-        <div style="font-size:1.2em; margin-bottom:5px;">${chartData.name}</div>
-        <div>${pName}宫${ELEMENT_CN[PALACE_ELEMENTS[chartData.palace.palace]]} - ${genText}</div>
+    subtitleContainer.innerHTML = `
+        <div class="hexagram-name">${chartData.name}</div>
+        <div class="hexagram-palace">${pName}宫${ELEMENT_CN[PALACE_ELEMENTS[chartData.palace.palace]]} - ${genText}</div>
     `;
 }
 

@@ -348,6 +348,24 @@ button:disabled {
     text-align: right;
 }
 
+.hexagram-subtitle {
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.hexagram-name {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: var(--text-color);
+    letter-spacing: 0.05em;
+}
+
+.hexagram-palace {
+    font-size: 0.85em;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
 .hexagram-info {
     text-align: center;
     margin-top: 14px;
