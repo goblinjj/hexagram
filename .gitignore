@@ -32,3 +32,5 @@ pids
 
 # Project specific
 # (None yet)
+dist
+dist/*
