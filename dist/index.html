@@ -5,8 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>六爻排盘</title>
-  <script type="module" crossorigin src="/assets/index-i7SumZWu.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-D_nQ7x-U.css">
+  <script type="module" crossorigin src="/assets/index-BHVDRQqg.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-Ca0zo-LN.css">
 </head>
 
 <body>
@@ -20,13 +20,18 @@
 
         <main>
             <div class="controls">
+                <div id="coin-container" class="coin-container" style="display:none;">
+                    <div class="coin"></div>
+                    <div class="coin"></div>
+                    <div class="coin"></div>
+                </div>
                 <button id="cast-btn">起卦</button>
                 <button id="reset-btn" style="display:none;">重置</button>
                 <div id="status-message">点击按钮开始起卦...</div>
             </div>
 
             <div class="divination-area">
-                <div id="primary-hexagram" class="hexagram-container">
+                <div id="primary-hexagram" class="hexagram-container" style="display:none;">
                     <h2>本卦</h2>
                     <div class="hexagram-lines"></div>
                     <div class="hexagram-info"></div>
@@ -39,6 +44,15 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Takashima Modal -->
+    <div id="takashima-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="modal-title"></h2>
+            <div id="modal-body"></div>
+        </div>
     </div>
 
 </body>
