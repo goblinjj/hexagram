@@ -275,16 +275,17 @@ button:disabled {
 }
 
 .line-info-left {
-    width: 120px;
+    flex: 1;
     font-size: 12px;
-    text-align: right;
+    text-align: left;
     padding-right: 10px;
     color: var(--text-muted);
     letter-spacing: 0.02em;
 }
 
 .line-graphic {
-    flex-grow: 1;
+    width: 120px;
+    flex-shrink: 0;
     display: flex;
     justify-content: center;
     position: relative;
@@ -334,15 +335,17 @@ button:disabled {
 }
 
 .line-info-right {
-    width: 200px;
+    flex: 1;
     font-size: 12px;
     padding-left: 10px;
     color: var(--text-muted);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: flex-end;
     gap: 3px;
     letter-spacing: 0.02em;
+    text-align: right;
 }
 
 .hexagram-info {
@@ -719,13 +722,15 @@ button:disabled {
     }
 
     .line-info-left {
-        width: 90px;
         font-size: 11px;
     }
 
     .line-info-right {
-        width: 140px;
         font-size: 11px;
+    }
+
+    .line-graphic {
+        width: 90px;
     }
 
     .coin-container {
@@ -757,13 +762,15 @@ button:disabled {
     }
 
     .line-info-left {
-        width: 70px;
         font-size: 10px;
     }
 
     .line-info-right {
-        width: 110px;
         font-size: 10px;
+    }
+
+    .line-graphic {
+        width: 70px;
     }
 
     .coin-container {
