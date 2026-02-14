@@ -156,19 +156,20 @@ function performToss() {
     coinContainer.style.display = 'flex';
 
     // 1. Determine targets (Collision limit)
-    // Area: 300x150. Coin: 50x50.
+    const containerW = coinContainer.offsetWidth;
+    const containerH = coinContainer.offsetHeight;
+    const coinSize = coinContainer.querySelector('.coin').offsetWidth || 64;
     const targets = [];
     let attempts = 0;
     while (targets.length < 3 && attempts < 100) {
-        const left = Math.random() * 250; // 300 - 50
-        const top = Math.random() * 100;  // 150 - 50
+        const left = Math.random() * (containerW - coinSize);
+        const top = Math.random() * (containerH - coinSize);
 
         let overlap = false;
         for (const t of targets) {
             const dx = t.left - left;
             const dy = t.top - top;
-            // Distance check (55px to be safe)
-            if (Math.sqrt(dx * dx + dy * dy) < 60) {
+            if (Math.sqrt(dx * dx + dy * dy) < (coinSize + 10)) {
                 overlap = true;
                 break;
             }
@@ -180,7 +181,7 @@ function performToss() {
     }
     // Fallback if placement fails
     while (targets.length < 3) {
-        targets.push({ left: Math.random() * 250, top: Math.random() * 100 });
+        targets.push({ left: Math.random() * (containerW - coinSize), top: Math.random() * (containerH - coinSize) });
     }
 
     // 2. Prepare coins
@@ -199,8 +200,8 @@ function performToss() {
 
         // Random start position (cluster near center for "toss" effect)
         c.style.transition = 'none';
-        c.style.left = (125 + Math.random() * 50) + 'px';
-        c.style.top = (50 + Math.random() * 50) + 'px';
+        c.style.left = ((containerW - coinSize) / 2 + (Math.random() - 0.5) * 50) + 'px';
+        c.style.top = ((containerH - coinSize) / 2 + (Math.random() - 0.5) * 50) + 'px';
         c.style.transform = `rotate(${Math.random() * 360}deg)`;
 
         // Trigger reflow
