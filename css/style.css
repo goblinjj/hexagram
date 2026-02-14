@@ -284,7 +284,7 @@ button:disabled {
 }
 
 .line-graphic {
-    width: 120px;
+    width: 160px;
     flex-shrink: 0;
     display: flex;
     justify-content: center;
@@ -704,11 +704,63 @@ button:disabled {
     font-size: 12px;
     flex-shrink: 0;
     margin-right: 12px;
+    cursor: pointer;
 }
 
 .history-name {
     color: var(--text-color);
     font-weight: 600;
+    cursor: pointer;
+    flex: 1;
+}
+
+.history-delete {
+    color: var(--text-muted);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+    margin-left: 8px;
+    flex-shrink: 0;
+    transition: color 0.2s;
+}
+
+.history-delete:hover {
+    color: var(--accent-color);
+}
+
+.history-clear-btn {
+    display: block;
+    margin: 12px auto 0;
+    font-size: 12px;
+    padding: 4px 16px;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border-light);
+    box-shadow: none;
+    letter-spacing: 0.05em;
+}
+
+.history-clear-btn:hover {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+    background: rgba(139, 37, 0, 0.03);
+}
+
+/* ── Study Link ── */
+.study-link {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--accent-gold);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+}
+
+.study-link:hover {
+    color: var(--accent-gold-light);
+    text-decoration: underline;
 }
 
 /* ── Responsive ── */
@@ -730,7 +782,7 @@ button:disabled {
     }
 
     .line-graphic {
-        width: 90px;
+        width: 110px;
     }
 
     .coin-container {
@@ -770,7 +822,7 @@ button:disabled {
     }
 
     .line-graphic {
-        width: 70px;
+        width: 80px;
     }
 
     .coin-container {

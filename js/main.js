@@ -411,6 +411,7 @@ function renderResult(castResult) {
 
     // Add button to Primary container
     addTakashimaButton(primaryHexContainer, focal.hexCode, focal.index, focal.description);
+    addStudyLink(primaryHexContainer, primaryBinary);
 
     // Render Varied
     let variedName = null;
@@ -423,6 +424,7 @@ function renderResult(castResult) {
         // Add Takashima button for varied hexagram (general text, no moving line)
         const variedBinaryCode = hexs.varied.join('');
         addTakashimaButton(variedHexContainer, variedBinaryCode, null, "变卦卦辞");
+        addStudyLink(variedHexContainer, variedBinaryCode);
     } else {
         variedHexContainer.style.display = 'none';
     }
@@ -695,6 +697,24 @@ function addTakashimaButton(container, binaryCode, movingLineIndex, description)
     };
 }
 
+function addStudyLink(container, binaryCode) {
+    let link = container.querySelector('.study-link');
+    if (!link) {
+        link = document.createElement('a');
+        link.className = 'study-link';
+        link.target = '_blank';
+        container.querySelector('.hexagram-info').appendChild(link);
+    }
+    const hexId = takashima.indexMap ? takashima.indexMap[binaryCode] : null;
+    if (hexId) {
+        link.href = `study.html?hex=${hexId}`;
+        link.textContent = '查看卦象详情';
+        link.style.display = '';
+    } else {
+        link.style.display = 'none';
+    }
+}
+
 // ── History (localStorage) ──
 const HISTORY_KEY = 'hexagram_history';
 const HISTORY_MAX = 50;
@@ -755,10 +775,37 @@ function renderHistoryList() {
         item.innerHTML = `
             <span class="history-date">${record.date}</span>
             <span class="history-name">${record.primaryName}${variedText}</span>
+            <span class="history-delete" title="删除">&times;</span>
         `;
-        item.addEventListener('click', () => restoreFromHistory(record));
+        item.querySelector('.history-name').addEventListener('click', () => restoreFromHistory(record));
+        item.querySelector('.history-date').addEventListener('click', () => restoreFromHistory(record));
+        item.querySelector('.history-delete').addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteHistoryItem(record.id);
+        });
         list.appendChild(item);
     });
+
+    // Clear all button
+    let clearBtn = section.querySelector('.history-clear-btn');
+    if (!clearBtn) {
+        clearBtn = document.createElement('button');
+        clearBtn.className = 'history-clear-btn';
+        clearBtn.textContent = '清空全部';
+        clearBtn.addEventListener('click', clearAllHistory);
+        section.appendChild(clearBtn);
+    }
+}
+
+function deleteHistoryItem(id) {
+    const history = getHistory().filter(r => r.id !== id);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    renderHistoryList();
+}
+
+function clearAllHistory() {
+    localStorage.removeItem(HISTORY_KEY);
+    renderHistoryList();
 }
 
 function restoreFromHistory(record) {

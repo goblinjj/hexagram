@@ -46,6 +46,13 @@ async function init() {
             });
         });
     }
+
+    // Open hexagram from URL param (e.g. ?hex=1)
+    const urlParams = new URLSearchParams(window.location.search);
+    const hexParam = urlParams.get('hex');
+    if (hexParam) {
+        showHexDetail(parseInt(hexParam, 10));
+    }
 }
 
 function renderGrid() {
