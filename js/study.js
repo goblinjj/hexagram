@@ -118,17 +118,18 @@ function formatPinyin(raw) {
 }
 
 function renderDetail(hex) {
-    modalTitle.innerText = hex.name;
+    const pinyin = formatPinyin(hex.pinyin);
+    modalTitle.innerHTML = escapeHtml(hex.name) +
+        (pinyin ? `<span class="hex-title-pinyin">${pinyin}</span>` : '');
 
     let html = '';
 
-    // Hex info header: pinyin + trigram composition
-    const pinyin = formatPinyin(hex.pinyin);
+    // Hex info header: trigram composition + palace
     const code = hex.code || '';
     let trigramHtml = '';
     if (code.length === 6) {
-        const lowerBits = code.substring(0, 3); // bits 0-2 = lower trigram
-        const upperBits = code.substring(3, 6); // bits 3-5 = upper trigram
+        const lowerBits = code.substring(0, 3);
+        const upperBits = code.substring(3, 6);
         const lower = TRIGRAM_INFO[lowerBits];
         const upper = TRIGRAM_INFO[upperBits];
         if (upper && lower) {
@@ -137,9 +138,8 @@ function renderDetail(hex) {
                 `</span>`;
         }
     }
-    if (pinyin || trigramHtml) {
+    if (trigramHtml || hex.palace) {
         html += `<div class="hex-detail-header">`;
-        if (pinyin) html += `<span class="hex-info-pinyin">${pinyin}</span>`;
         if (hex.palace) html += `<span class="hex-info-palace">${hex.palace}</span>`;
         if (trigramHtml) html += trigramHtml;
         html += `</div>`;

@@ -122,6 +122,15 @@
     background: var(--accent-color);
 }
 
+.hex-title-pinyin {
+    font-size: 0.6em;
+    font-weight: 400;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-left: 10px;
+    letter-spacing: 0.03em;
+}
+
 /* ── Hex Detail Header ── */
 .hex-detail-header {
     display: flex;
@@ -135,11 +144,6 @@
     font-size: 14px;
     color: var(--text-muted);
     line-height: 1.6;
-}
-
-.hex-info-pinyin {
-    font-style: italic;
-    letter-spacing: 0.05em;
 }
 
 .hex-info-palace {
