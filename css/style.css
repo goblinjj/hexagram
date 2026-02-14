@@ -494,6 +494,35 @@ button:disabled {
     color: var(--text-color);
 }
 
+/* ── Modal Toggle Button ── */
+.modal-toggle-wrap {
+    text-align: right;
+    margin-bottom: 16px;
+}
+
+.modal-toggle-btn {
+    font-size: 12px;
+    padding: 4px 14px;
+    border: 1px solid var(--accent-gold);
+    background: transparent;
+    color: var(--accent-gold);
+    border-radius: 3px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.modal-toggle-btn:hover {
+    background: var(--accent-gold);
+    color: var(--bg-paper);
+}
+
+.modal-toggle-btn.active {
+    background: var(--accent-gold);
+    color: var(--bg-paper);
+}
+
 /* ── Takashima Button ── */
 .takashima-btn {
     margin-top: 12px !important;

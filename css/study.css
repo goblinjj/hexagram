@@ -1,0 +1,119 @@
+/* ── Study Page ── */
+
+.study-container {
+    max-width: 720px;
+}
+
+.study-nav {
+    margin-top: 12px;
+}
+
+.study-nav a {
+    color: var(--accent-gold);
+    text-decoration: none;
+    font-size: 0.9em;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+}
+
+.study-nav a:hover {
+    color: var(--accent-gold-light);
+}
+
+/* ── Hexagram Grid (8×8) ── */
+.hexagram-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 6px;
+}
+
+.hex-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(250, 246, 239, 0.6);
+    border: 1px solid var(--border-light);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    padding: 4px;
+    min-height: 0;
+}
+
+.hex-cell:hover {
+    border-color: var(--accent-gold);
+    background: rgba(184, 134, 11, 0.08);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.hex-cell-num {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+.hex-cell-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-color);
+    text-align: center;
+    line-height: 1.3;
+}
+
+/* ── Study Modal (wider for full text) ── */
+.study-modal-content {
+    max-width: 780px;
+    width: 90%;
+    margin: 4% auto;
+    max-height: 88vh;
+    overflow-y: auto;
+}
+
+#study-modal-title {
+    margin-top: 0;
+    color: var(--accent-color);
+    font-family: "Noto Serif SC", "Songti SC", serif;
+    font-size: 1.3em;
+    letter-spacing: 0.1em;
+    border-bottom: 1px solid var(--border-light);
+    padding-bottom: 14px;
+    padding-right: 40px;
+    position: relative;
+}
+
+#study-modal-title::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background: var(--accent-color);
+}
+
+/* ── Responsive ── */
+@media (max-width: 560px) {
+    .hexagram-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 5px;
+    }
+
+    .hex-cell-name {
+        font-size: 12px;
+    }
+
+    .study-modal-content {
+        width: 95%;
+        margin: 2% auto;
+        padding: 20px 16px;
+    }
+}
+
+@media (min-width: 561px) and (max-width: 680px) {
+    .hexagram-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}

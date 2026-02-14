@@ -1,4 +1,12 @@
+import { resolve } from 'path'
 
 export default {
-    // config options
+    build: {
+        rollupOptions: {
+            input: {
+                main: resolve(__dirname, 'index.html'),
+                study: resolve(__dirname, 'study.html'),
+            }
+        }
+    }
 }

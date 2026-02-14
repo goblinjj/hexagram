@@ -25,10 +25,10 @@ export class Takashima {
      * @returns {Promise<object>} { title: string, content: string }
      */
     async getExplanation(binaryCode, movingLineIndex) {
-        if (!this.indexMap) return { title: "索引未加载", content: "请刷新页面重试。" };
+        if (!this.indexMap) return { title: "索引未加载", error: "请刷新页面重试。" };
 
         const hexId = this.indexMap[binaryCode];
-        if (!hexId) return { title: "未知卦象", content: "未找到对应的卦象解释。" };
+        if (!hexId) return { title: "未知卦象", error: "未找到对应的卦象解释。" };
 
         // Check cache or fetch
         let hex = this.cache[hexId];
@@ -40,30 +40,37 @@ export class Takashima {
                 this.cache[hexId] = hex;
             } catch (e) {
                 console.error(e);
-                return { title: "加载失败", content: "无法获取该卦象的详细信息。" };
+                return { title: "加载失败", error: "无法获取该卦象的详细信息。" };
             }
         }
+
+        const result = {
+            title: hex.name,
+            guaci: hex.guaci || '',
+            modern_guaci: hex.modern_guaci || '',
+            general_text: hex.general_text || '',
+            modern_general_text: hex.modern_general_text || '',
+        };
 
         if (movingLineIndex !== null && movingLineIndex !== undefined) {
             const lineKey = (movingLineIndex + 1).toString();
             const line = hex.lines[lineKey];
 
-            if (!line) return { title: hex.name, originalText: '', modernText: '', content: "未找到该爻的变辞。" };
+            if (!line) return { ...result, error: "未找到该爻的变辞。" };
 
-            return {
-                title: `${hex.name} - ${lineKey === '1' ? '初' : (lineKey === '6' ? '上' : lineKey)}爻变`,
-                originalText: line.text || '',
-                modernText: line.modern_text || '',
-                content: line.takashima_explanation
-            };
+            const lineName = lineKey === '1' ? '初' : (lineKey === '6' ? '上' : lineKey);
+            result.title = `${hex.name} - ${lineName}爻变`;
+            result.lineText = line.text || '';
+            result.modern_lineText = line.modern_text || '';
+            result.takashima = line.takashima_explanation || '';
+            result.modern_takashima = line.modern_takashima_explanation || '';
         } else {
-            return {
-                title: `${hex.name} - 总断`,
-                originalText: hex.guaci || '',
-                modernText: hex.modern_guaci || '',
-                content: hex.takashima_general
-            };
+            result.title = `${hex.name} - 总断`;
+            result.takashima = hex.takashima_general || '';
+            result.modern_takashima = hex.modern_takashima_general || '';
         }
+
+        return result;
     }
     /**
      * Calculate the focal element based on moving lines logic.
