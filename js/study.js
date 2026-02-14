@@ -1,5 +1,17 @@
 import { HEXAGRAM_NAMES } from './data/constants.js';
 
+// Trigram binary → Chinese name and symbol
+const TRIGRAM_INFO = {
+    '111': { name: '乾', symbol: '☰', nature: '天' },
+    '110': { name: '兑', symbol: '☱', nature: '泽' },
+    '101': { name: '离', symbol: '☲', nature: '火' },
+    '100': { name: '震', symbol: '☳', nature: '雷' },
+    '011': { name: '巽', symbol: '☴', nature: '风' },
+    '010': { name: '坎', symbol: '☵', nature: '水' },
+    '001': { name: '艮', symbol: '☶', nature: '山' },
+    '000': { name: '坤', symbol: '☷', nature: '地' },
+};
+
 // Build id→code reverse mapping from takashima_index.json
 let idToCode = {};   // "1" -> "111111"
 let indexMap = {};    // "111111" -> "1"
@@ -99,10 +111,39 @@ async function showHexDetail(id) {
     renderDetail(hex);
 }
 
+function formatPinyin(raw) {
+    if (!raw) return '';
+    // "shui_lei_tun" → "shuǐ léi tún" — just capitalize and space for now
+    return raw.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
+
 function renderDetail(hex) {
     modalTitle.innerText = hex.name;
 
     let html = '';
+
+    // Hex info header: pinyin + trigram composition
+    const pinyin = formatPinyin(hex.pinyin);
+    const code = hex.code || '';
+    let trigramHtml = '';
+    if (code.length === 6) {
+        const lowerBits = code.substring(0, 3); // bits 0-2 = lower trigram
+        const upperBits = code.substring(3, 6); // bits 3-5 = upper trigram
+        const lower = TRIGRAM_INFO[lowerBits];
+        const upper = TRIGRAM_INFO[upperBits];
+        if (upper && lower) {
+            trigramHtml = `<span class="hex-info-trigrams">` +
+                `${upper.symbol} ${upper.name}（${upper.nature}）上 · ${lower.symbol} ${lower.name}（${lower.nature}）下` +
+                `</span>`;
+        }
+    }
+    if (pinyin || trigramHtml) {
+        html += `<div class="hex-detail-header">`;
+        if (pinyin) html += `<span class="hex-info-pinyin">${pinyin}</span>`;
+        if (hex.palace) html += `<span class="hex-info-palace">${hex.palace}</span>`;
+        if (trigramHtml) html += trigramHtml;
+        html += `</div>`;
+    }
 
     // 1. 卦辞
     html += section('卦辞', hex.guaci, hex.modern_guaci, 'modal-classical-text');

@@ -122,6 +122,35 @@
     background: var(--accent-color);
 }
 
+/* ── Hex Detail Header ── */
+.hex-detail-header {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
+    margin-bottom: 18px;
+    padding: 10px 14px;
+    background: rgba(196, 169, 125, 0.08);
+    border-radius: 3px;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.hex-info-pinyin {
+    font-style: italic;
+    letter-spacing: 0.05em;
+}
+
+.hex-info-palace {
+    color: var(--accent-gold);
+    font-weight: 600;
+}
+
+.hex-info-trigrams {
+    letter-spacing: 0.03em;
+}
+
 /* ── Responsive ── */
 @media (max-width: 560px) {
     .hexagram-grid {
